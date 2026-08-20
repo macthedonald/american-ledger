@@ -34,7 +34,7 @@ def ffmpeg_capabilities(ffmpeg: str = "ffmpeg") -> set[str]:
     for flag, names in (
         ("-hwaccels", ("cuda",)),
         ("-filters", ("scale_cuda", "crop_cuda")),
-        ("-encoders", ("h264_nvenc",)),
+        ("-encoders", ("libx264",)),
     ):
         proc = subprocess.run([ffmpeg, "-hide_banner", flag], capture_output=True, text=True)
         if proc.returncode == 0:
@@ -51,7 +51,7 @@ def build_cuda_normalization_command(
 ) -> list[str]:
     """Build single-clip CUDA normalization; creative CPU grades are unsupported."""
     available = ffmpeg_capabilities(ffmpeg) if capabilities is None else capabilities
-    required = {"cuda", "scale_cuda", "crop_cuda", "h264_nvenc"}
+    required = {"cuda", "scale_cuda", "crop_cuda", "libx264"}
     if missing := required - available:
         raise RuntimeError(f"CUDA normalization unavailable: missing {', '.join(sorted(missing))}")
     return [
@@ -59,7 +59,7 @@ def build_cuda_normalization_command(
         "-i", str(source), "-vf",
         f"scale_cuda={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
         f"crop_cuda={WIDTH}:{HEIGHT}",
-        "-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq",
+        "-c:v", "libx264", "-preset", "fast", 
         "-b:v", "8M", "-pix_fmt", "yuv420p", "-r", str(FPS), "-an", str(output),
     ]
 
@@ -84,7 +84,7 @@ def benchmark_normalization(source: Path, ffmpeg: str = "ffmpeg") -> dict[str, f
         cpu_command = [
             ffmpeg, "-y", "-i", str(source), "-vf",
             f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT}",
-            "-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq",
+            "-c:v", "libx264", "-preset", "fast", 
             "-b:v", "8M", "-pix_fmt", "yuv420p", "-r", str(FPS), "-an", str(cpu),
         ]
         cpu_sec = benchmark_command(cpu_command)
@@ -221,7 +221,7 @@ def render_footage_scene(
         + [
             "-filter_complex", filter_complex,
             "-map", "[vout]",
-            "-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq",
+            "-c:v", "libx264", "-preset", "fast", 
             "-b:v", "8M", "-pix_fmt", "yuv420p", "-r", str(FPS),
             "-an",
             str(out),

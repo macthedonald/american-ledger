@@ -131,9 +131,9 @@ def build_photo_base(spec: PhotoBaseSpec) -> str:
         "-filter_complex", filter_complex,
         "-map", f"[{cur}]",
         "-frames:v", str(frames),
-        "-c:v", "h264_nvenc",
-        "-preset", "p6",
-        "-tune", "hq",
+        "-c:v", "libx264",
+        "-preset", "fast",
+        
         "-b:v", "12M",
         "-pix_fmt", "yuv420p",
         "-r", str(FPS),
@@ -157,7 +157,7 @@ def composite_overlay(base_mp4: str, overlay_alpha: str, out: str, duration: flo
         "-i", overlay_alpha,
         "-filter_complex", "[0:v][1:v]overlay=0:0:shortest=1[v]",
         "-map", "[v]",
-        "-c:v", "h264_nvenc", "-preset", "p6", "-tune", "hq",
+        "-c:v", "libx264", "-preset", "fast", 
         "-b:v", "12M", "-pix_fmt", "yuv420p", "-r", str(FPS),
         out,
     ]

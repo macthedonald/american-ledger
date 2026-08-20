@@ -16,7 +16,7 @@ def test_cuda_command_requires_capabilities(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="scale_cuda"):
         build_cuda_normalization_command(tmp_path / "in.mp4", tmp_path / "out.mp4", {"cuda"})
     command = build_cuda_normalization_command(
-        tmp_path / "in.mp4", tmp_path / "out.mp4", {"cuda", "scale_cuda", "crop_cuda", "h264_nvenc"}
+        tmp_path / "in.mp4", tmp_path / "out.mp4", {"cuda", "scale_cuda", "crop_cuda", "libx264"}
     )
     assert "-hwaccel_output_format" in command
     assert "scale_cuda=1920:1080" in " ".join(command)

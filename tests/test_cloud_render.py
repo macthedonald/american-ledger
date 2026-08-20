@@ -108,5 +108,5 @@ def test_cuda_normalization_requires_complete_gpu_chain(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="crop_cuda"):
         build_cuda_normalization_command(
             tmp_path / "in.mp4", tmp_path / "out.mp4",
-            {"cuda", "scale_cuda", "h264_nvenc"},
+            {"cuda", "scale_cuda", "libx264"},
         )
